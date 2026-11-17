@@ -1,0 +1,21 @@
+name: Python evaluation tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mode: [baseline, ai_assisted]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Test implementation
+        env:
+          EVAL_MODE: ${{ matrix.mode }}
+        run: python -m pytest tests -q --cov=calculator --cov-report=term-missing

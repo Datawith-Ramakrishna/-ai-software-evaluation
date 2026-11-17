@@ -1,0 +1,8 @@
+.active_session.json
+sessions.csv
+results.csv
+comparison.csv
+comparison.png
+summary.txt
+*_junit.xml
+*_coverage.json
