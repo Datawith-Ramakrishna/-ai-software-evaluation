@@ -1,8 +1,31 @@
-# AI Effect in Software Development — 4-hour Windows MVP
+# AI-Assisted Software Development Evaluation — Python MVP
 
 A working, **honestly labeled pilot evaluation framework** comparing Python development with and without ChatGPT. Python + pytest + coverage + pandas/matplotlib + Git + GitHub Actions; SonarQube Cloud is optional and **not required to run**.
 
 > **Important:** Both shipped calculator implementations are reference/demo code to verify the pipeline. They were not developed in timed independent conditions. Their results are **not experimental evidence**. Replace them and measure real sessions before making claims about AI impact.
+
+## MVP implementation status (November 2026)
+
+The technical demonstration has been completed. The project has separate baseline and AI-assisted calculator implementations, automated pytest and coverage collection, GitHub Actions CI, and two SonarQube Cloud scan workflows. The latest CI and both SonarQube workflows were reported passing after the final fixes.
+
+### Recorded comparison
+
+| Metric | Baseline | AI-assisted |
+|---|---:|---:|
+| Automated tests | 9/9 passed | 9/9 passed |
+| Local coverage | 100% | 100% |
+| SonarQube quality gate | Passed | Passed |
+| SonarQube security rating | A | A |
+| Issues in calculator-specific analysis | 0 | 0 |
+| SonarQube lines of code | 26 | 22 |
+| Development time | One recorded session: 0.308 minutes | Not recorded |
+
+The AI-assisted reference code is four lines (approximately 15.4%) shorter. This does **not** establish that AI increased productivity or quality. The baseline timing record is only a short recorded session, not verified total development time. SonarQube's dashboard showed 0% coverage because local coverage reports were not imported; **100% above refers to local pytest coverage**.
+
+The comparison CSV contains blank SonarQube bug, code-smell, and vulnerability columns; dashboard observations should not be mistaken for automatically imported CSV measurements.
+
+### Final report
+[Read the final MVP evaluation report](evaluation/final_report.md).
 
 ## Prerequisites
 - Windows 10/11 with **Python 3.12** installed (`py -3.12 --version`)
@@ -53,34 +76,29 @@ Finally:
 
 The timers append to `evaluation/sessions.csv`. Do not invent values. To repeat a new experiment, archive/remove sessions.csv first or the analysis will sum sessions by condition.
 
-## Optional SonarQube Cloud — no local installation
-1. Create a free SonarQube Cloud account at https://sonarcloud.io/ and import your GitHub repository. Availability and plan limits may change.
-2. Create **two SonarQube projects**, one for `baseline`, one for `ai_assisted`. Copy the two project keys and organization key.
-3. Replace placeholders in `sonar-baseline.properties` and `sonar-ai-assisted.properties`.
-4. Follow SonarQube Cloud's current automatic GitHub analysis setup, **or** install the official SonarScanner CLI and authenticate with a token. Never commit a token.
+## SonarQube Cloud — configured for this MVP (optional for local runs)
+1. This MVP already has two SonarQube Cloud projects. For a fork or new installation, create an account at https://sonarcloud.io/ and import your own repository. Availability and plan limits may change.
+2. Existing projects: [baseline](https://sonarcloud.io/dashboard?id=datawith-ramakrishna_ai-evaluation-baseline&branch=main) and [AI-assisted](https://sonarcloud.io/dashboard?id=datawith-ramakrishna_ai-evaluation-assisted&branch=main). For a fork, create your own two projects and copy their keys and organization key.
+3. For a fork, update `sonar-baseline.properties` and `sonar-ai-assisted.properties` with your own keys.
+4. The repository runs scans through `.github/workflows/sonar-baseline.yml` and `.github/workflows/sonar-ai-assisted.yml` using a GitHub Actions `SONAR_TOKEN` secret. For your own repository, configure that secret; never commit a token. Alternatively, use the official SonarScanner CLI.
 5. For CLI scanning from the project root, in PowerShell set `$env:SONAR_TOKEN = 'your-token'` (locally only), then run:
    `sonar-scanner -Dproject.settings=sonar-baseline.properties -Dsonar.host.url=https://sonarcloud.io`
    and `sonar-scanner -Dproject.settings=sonar-ai-assisted.properties -Dsonar.host.url=https://sonarcloud.io`.
 6. Copy the resulting **actual** counts for bugs, code smells and vulnerabilities into `evaluation/sonar_metrics.csv`, leaving unavailable metrics blank. Run analysis again.
 
-The two scanner configurations isolate the source folders. The SonarQube Cloud interface and metric names may differ by analysis mode/version. If the current UI shows reliability, maintainability and security issues instead of these legacy names, document the actual metric definitions and adapt the CSV columns consistently. Do not treat unavailable data as zero.
+The two scanner configurations use `sonar.exclusions` to isolate each calculator implementation; the newer SonarQube analysis scope does not honor `sonar.sources` in this setup. The SonarQube Cloud interface and metric names may differ by analysis mode/version. If the current UI shows reliability, maintainability and security issues instead of these legacy names, document the actual metric definitions and adapt the CSV columns consistently. Do not treat unavailable data as zero.
 
 ## Git and CI/CD
+
+The project is maintained in [GitHub](https://github.com/Datawith-Ramakrishna/-ai-software-evaluation). After making changes, commit and push them from the repository root:
+
 ```powershell
-git init
 git add .
-git commit -m "Initial evaluation framework"
-# Create a GitHub repository and push it; GitHub Actions runs automatically
+git commit -m "Update evaluation project"
+git push origin main
 ```
 
-The workflow `.github/workflows/ci.yml` tests both conditions on Python 3.12. It does not run SonarQube scanning until you configure that separately. **CI test runtime is not developer implementation time.**
-
-## Suggested four-hour schedule
-- **0:00–0:30:** extract ZIP, install dependencies, run both demo tests, freeze test requirements.
-- **0:30–1:40:** replace demo implementations under baseline/AI conditions, log times and prompts.
-- **1:40–2:20:** collect pytest and coverage, fix test configuration, inspect reports.
-- **2:20–3:10:** run analysis and document comparisons; optionally configure SonarQube Cloud.
-- **3:10–4:00:** push GitHub, verify Actions, finish experiment notes and German summary.
+The workflow `.github/workflows/ci.yml` tests both conditions on Python 3.12. Separate workflows `.github/workflows/sonar-baseline.yml` and `.github/workflows/sonar-ai-assisted.yml` run SonarQube Cloud scans. **CI test runtime is not developer implementation time.**
 
 ## Scientific limitations
 This is a descriptive single-developer pilot. Repeated-task learning, prompt skill, task complexity and developer familiarity can confound comparisons. A defensible larger study needs matched tasks, counterbalanced order and multiple observations. The included starter implementations do not demonstrate an AI effect.
